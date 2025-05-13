@@ -9,7 +9,50 @@ async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["mode"] = "search"
     await update.message.reply_text("What kind of products are you looking for?", reply_markup=get_restart_button())
 
+async def handle_search_mode_available_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    
+    checking_msg_id = None
+    for row in query.message.reply_markup.inline_keyboard:
+        for button in row:
+            if button.callback_data.startswith('confirm_buy_'):
+                checking_msg_id = button.callback_data.split('_')[-1]
+            elif button.callback_data.startswith('older_post_'):
+                post_id = button.callback_data.split('_')[-1]
+    
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("✅ Yes, I'm ready to buy", callback_data=f"confirm_buy_{checking_msg_id}")],
+        [InlineKeyboardButton("👀 No, Show me another similar item", callback_data=f"older_post_{post_id}")]
+    ])
+    
+    await query.edit_message_reply_markup(reply_markup=keyboard)
+    
+    context.user_data["mode"] = "search"
+    await query.message.reply_text("What kind of products are you looking for?", reply_markup=get_restart_button())
 
+async def handle_search_mode_unavailable_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    
+    checking_msg_id = None
+    for row in query.message.reply_markup.inline_keyboard:
+        for button in row:
+            if button.callback_data.startswith('confirm_buy_'):
+                checking_msg_id = button.callback_data.split('_')[-1]
+            elif button.callback_data.startswith('older_post_'):
+                post_id = button.callback_data.split('_')[-1]
+    
+    keyboard = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("Show similar items", callback_data=f"older_post_{post_id}"),
+        ]
+    ])
+    
+    await query.edit_message_reply_markup(reply_markup=keyboard)
+    
+    context.user_data["mode"] = "search"
+    await query.message.reply_text("What kind of products are you looking for?", reply_markup=get_restart_button())
 
 async def handle_older_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -39,4 +82,3 @@ async def handle_older_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
         print(f"Couldn't delete message: {e}")
 
     await send_next_post(user, context, current_post_id)
-

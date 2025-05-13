@@ -4,6 +4,7 @@ from telegram.constants import ParseMode
 from account.models import User
 from asgiref.sync import sync_to_async
 from groupbot.models import GroupPost
+from my_tg_bot.utils import replies
 
 async def handle_buy_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -17,8 +18,8 @@ async def handle_buy_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         InlineKeyboardButton("Please wait...", callback_data="checking_availability")
     ]])
 
-    await query.edit_message_text(
-        f"{post.text}\n\n{'='*30}\n\n🔍 Checking availability... Please wait",
+    checking_msg = await query.edit_message_text(
+        replies.on_buy_button_clicked_checking_availability(post.text),
         reply_markup=keyboard,
         parse_mode=ParseMode.HTML
     )
@@ -29,14 +30,14 @@ async def handle_buy_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         keyboard = InlineKeyboardMarkup([
             [
-                InlineKeyboardButton("✅ Yes", callback_data=f"confirm_avail_{post_id}_{user.id}"),
-                InlineKeyboardButton("❌ No", callback_data=f"deny_avail_{post_id}_{user.id}")
+                InlineKeyboardButton("✅ Yes", callback_data=f"confirm_avail_{post_id}_{user.id}_{checking_msg.message_id}"),
+                InlineKeyboardButton("❌ No", callback_data=f"deny_avail_{post_id}_{user.id}_{checking_msg.message_id}")
             ]
         ])
         if post.image_links:
             media_group = []
             for i, img_link in enumerate(post.image_links):
-                caption = f"🛒 Availability Check Request\n\nFrom: @{user.username}\n\nIs this item still available?\n\n{post.text}" if i == 0 else None
+                caption = replies.on_availability_check_request(post.text) if i == 0 else None
                 media_group.append(InputMediaPhoto(media=img_link, caption=caption))
             
             await context.bot.send_media_group(
@@ -52,21 +53,21 @@ async def handle_buy_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         else:
             await context.bot.send_message(
                 chat_id=support_user.tg_id,
-                text=f"🛒 Availability Check Request\n\nFrom: @{user.username}\n\nIs this item still available?\n\n{post.text}",
+                text=replies.on_availability_check_request(post.text),
                 reply_markup=keyboard,
                 parse_mode=ParseMode.HTML
             )
         await context.bot.send_message(
             chat_id=user.id,
-            text="📬 We've notified the seller about your request. They'll respond shortly!"
+            text=replies.on_notified_seller_response()
         )
         
     except Exception:
         await context.bot.send_message(
             chat_id=user.id,
-            text="⚠️ Couldn't reach seller. Please try again later."
+            text=replies.on_couldnt_reach_seller()
         )
         await query.edit_message_text(
-            text=f"{post.text}\n\n{'='*30}\n\n⚠️ Couldn't process your request. Please try again.",
+            text=replies.on_couldnt_reach_seller_edit_post(),
             parse_mode=ParseMode.HTML
         )
