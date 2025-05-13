@@ -28,7 +28,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             reply_markup=reply_markup
         )
     else:
+        welcome_msg = "Welcome back! "
+        if 'current_group_id' in context.user_data:
+            welcome_msg += "I'm showing you products from a specific group. "
+            welcome_msg += "Use /cleargroup to see products from all groups. "
+        welcome_msg += "What would you like to do today?"
+        
         await update.message.reply_text(
-            "Welcome back! What would you like to do today?",
+            welcome_msg,
             reply_markup=get_main_buttons()
         )

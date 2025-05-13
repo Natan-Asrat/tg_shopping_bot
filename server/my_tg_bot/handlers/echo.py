@@ -8,6 +8,7 @@ from my_tg_bot.handlers.search import search
 from my_tg_bot.handlers.sellers import sellers
 from my_tg_bot.utils.send_post import send_latest_post_to_user
 from my_tg_bot.utils.buttons import get_main_buttons, get_restart_button
+from my_tg_bot.handlers.register_bot import register_bot, handle_token
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tg_user = update.message.from_user
@@ -43,6 +44,8 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return await update.message.reply_text("Use /search or /sellers to switch modes.\nUse /start to reset.")
     elif text == "start again":
         return await start(update, context)
+    elif text == "register your bot":
+        return await register_bot(update, context)
 
     mode = context.user_data.get("mode")
     if mode == "sellers":
@@ -50,5 +53,7 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif mode == "search":
         await send_latest_post_to_user(user, context)
         return
+    elif mode == "register_bot":
+        return await handle_token(update, context)
     else:
         return await update.message.reply_text("Do you want to find products or sellers?", reply_markup=get_main_buttons())

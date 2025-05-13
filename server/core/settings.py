@@ -124,5 +124,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
+BOT_USERNAME="n8nAssistantNateBot"
 TELEGRAM_TOKEN="7883046965:AAFI8a4wAwa1qbUKXS3aUbjQliSxFSiQbxo"
