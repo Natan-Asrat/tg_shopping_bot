@@ -1,14 +1,19 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, InputMediaPhoto
 from telegram.ext import ContextTypes
 from telegram.constants import ParseMode
-from account.models import User
 from asgiref.sync import sync_to_async
-from groupbot.models import GroupPost
+from groupbot.models import GroupPost, UserBot
 from my_tg_bot.utils import replies
+from account.models import User
 
 async def handle_buy_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
+
+    my_context = context.application.bot_data.get('my_context')
+    bot_username = my_context.user_bot.get('username') if not my_context.is_default else settings.BOT_USERNAME
+    bot_obj = await sync_to_async(UserBot.objects.select_related('owner').get)(username=bot_username)
+    owner = bot_obj.owner
 
     post_id = int(query.data.split('_')[1])
 
@@ -26,7 +31,6 @@ async def handle_buy_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
 
     try:
-        support_user = await sync_to_async(User.objects.get)(username="emi_shop_support")
 
         keyboard = InlineKeyboardMarkup([
             [
@@ -41,18 +45,18 @@ async def handle_buy_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 media_group.append(InputMediaPhoto(media=img_link, caption=caption))
             
             await context.bot.send_media_group(
-                chat_id=support_user.tg_id,
+                chat_id=owner.tg_id,
                 media=media_group
             )
 
             await context.bot.send_message(
-                chat_id=support_user.tg_id,
+                chat_id=owner.tg_id,
                 text="Please confirm availability:",
                 reply_markup=keyboard
             )
         else:
             await context.bot.send_message(
-                chat_id=support_user.tg_id,
+                chat_id=owner.tg_id,
                 text=replies.on_availability_check_request(post.text),
                 reply_markup=keyboard,
                 parse_mode=ParseMode.HTML

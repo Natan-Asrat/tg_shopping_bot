@@ -5,6 +5,7 @@ from account.models import User
 from groupbot.models import UserBot
 from asgiref.sync import sync_to_async
 from my_tg_bot.utils.buttons import get_registration_buttons, get_main_buttons
+import threading 
 
 async def register_bot(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Initiates the bot registration process."""
@@ -61,12 +62,33 @@ async def handle_token(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         # Get the current user and save bot
         user = await sync_to_async(User.objects.get)(tg_id=update.effective_user.id)
-        await sync_to_async(UserBot.objects.create)(
+        new_bot = await sync_to_async(UserBot.objects.create)(
             owner=user,
             name=bot_name,
             username=bot_username,
             token=token
         )
+        
+        from my_tg_bot.utils.setup import start_bot_thread
+        from my_tg_bot.utils.setup import bot_threads
+        def launch_new_bot():
+            thread = threading.Thread(
+                target=start_bot_thread,
+                args=(new_bot.token, False, {
+                    'token': new_bot.token,
+                    'username': new_bot.username,
+                    'name': new_bot.name,
+                    'description': new_bot.description,
+                    'is_active': new_bot.is_active,
+                    'created_at': new_bot.created_at,
+                    'updated_at': new_bot.updated_at
+                }),
+                daemon=True
+            )
+            thread.start()
+            bot_threads[new_bot.token] = thread
+
+        await sync_to_async(launch_new_bot)()
 
         context.user_data.pop("mode", None)
 

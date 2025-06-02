@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -75,13 +79,23 @@ WSGI_APPLICATION = "core.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),  
+        'USER': os.environ.get('DB_USER'),        
+        'PASSWORD': os.environ.get('DB_PASSWORD'),       
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -126,3 +140,8 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 BOT_USERNAME="n8nAssistantNateBot"
 TELEGRAM_TOKEN="7883046965:AAFI8a4wAwa1qbUKXS3aUbjQliSxFSiQbxo"
+DEEPSEEK_API_KEY=os.environ.get('DEEPSEEK_API_KEY')
+OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY')
+GROQ_API_KEY=os.environ.get('GROQ_API_KEY')
+HUGGING_FACE_API_KEY=os.environ.get('HUGGING_FACE_API_KEY')
+print("deep",DEEPSEEK_API_KEY)

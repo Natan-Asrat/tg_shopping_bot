@@ -8,7 +8,6 @@ async def handle_group_message(update: Update, context: ContextTypes.DEFAULT_TYP
     message = update.message
     my_context = context.application.bot_data.get('my_context')
     bot_username = my_context.user_bot.get('username') if not my_context.is_default else settings.BOT_USERNAME
-    print('bot_username', bot_username)
 
     if message.chat.type not in ['group', 'supergroup']:
         return

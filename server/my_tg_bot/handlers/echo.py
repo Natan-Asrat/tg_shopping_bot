@@ -9,6 +9,7 @@ from my_tg_bot.handlers.sellers import sellers
 from my_tg_bot.utils.send_post import send_latest_post_to_user
 from my_tg_bot.utils.buttons import get_main_buttons, get_restart_button
 from my_tg_bot.handlers.register_bot import register_bot, handle_token
+from my_tg_bot.handlers.search import send_search_results_to_user
 
 async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     tg_user = update.message.from_user
@@ -51,7 +52,10 @@ async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if mode == "sellers":
         return await update.message.reply_text("This is seller mode.", reply_markup=get_restart_button())
     elif mode == "search":
-        await send_latest_post_to_user(user, context)
+        # await send_latest_post_to_user(user, context)
+        # return
+        query_text = update.message.text  # or however you’re getting the user’s search query
+        await send_search_results_to_user(user, context, query_text=query_text)
         return
     elif mode == "register_bot":
         return await handle_token(update, context)
