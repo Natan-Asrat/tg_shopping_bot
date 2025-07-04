@@ -8,6 +8,7 @@ import requests
 from groupbot.models import SearchSession
 from my_tg_bot.utils.search_results import get_sorted_posts_by_similarity
 from telegram.constants import ParseMode
+from django.conf import settings
 
 async def search(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["mode"] = "search"
@@ -89,7 +90,7 @@ async def handle_older_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 @sync_to_async
 def get_embedding_from_text(text):
-    response = requests.post("http://127.0.0.1:8009/encode", json={"text": text}, timeout=10)
+    response = requests.post(f"{settings.ENCODER_SERVER_SCHEME}://{settings.ENCODER_SERVER_HOST}:{settings.ENCODER_SERVER_PORT}/encode", json={"text": text}, timeout=10)
     response.raise_for_status()
     return response.json().get("embedding")
 

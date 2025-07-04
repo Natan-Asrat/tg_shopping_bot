@@ -5,6 +5,7 @@ import threading
 from sentence_transformers import SentenceTransformer
 from urllib.parse import urlparse
 import socketserver
+from django.conf import settings
 
 # Load model once globally
 model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -38,8 +39,8 @@ class Command(BaseCommand):
     help = "Run a simple HTTP server that encodes text to embeddings"
 
     def handle(self, *args, **options):
-        host, port = "127.0.0.1", 8009
-        self.stdout.write(f"Starting encoder server at http://{host}:{port}/encode")
+        host, port = settings.ENCODER_SERVER_HOST, settings.ENCODER_SERVER_PORT
+        self.stdout.write(f"Starting encoder server at {settings.ENCODER_SERVER_SCHEME}://{host}:{port}/encode")
 
         httpd = HTTPServer((host, port), EncoderHandler)
         try:

@@ -115,7 +115,7 @@ Dont include extra words like here is the tags... your response is going to be  
 
     try:
         payload = {"text": instance.text + ' ' + tags}
-        r = requests.post("http://127.0.0.1:8009/encode", json=payload, timeout=10)
+        r = requests.post(f"{settings.ENCODER_SERVER_SCHEME}://{settings.ENCODER_SERVER_HOST}:{settings.ENCODER_SERVER_PORT}/encode", json=payload, timeout=10)
         r.raise_for_status()
         embedding = r.json().get("embedding")
         if embedding:

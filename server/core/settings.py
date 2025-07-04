@@ -24,10 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-6^gfn#9nw2ol)#!o4&=2%%6&$91=m$i^r*kem13^m80l$_=$uf"
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'true').lower() == 'true'
 
 ALLOWED_HOSTS = []
 
@@ -138,10 +138,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-BOT_USERNAME="n8nAssistantNateBot"
-TELEGRAM_TOKEN="7883046965:AAFI8a4wAwa1qbUKXS3aUbjQliSxFSiQbxo"
-DEEPSEEK_API_KEY=os.environ.get('DEEPSEEK_API_KEY')
-OPENAI_API_KEY=os.environ.get('OPENAI_API_KEY')
+BOT_USERNAME=os.environ.get('BOT_USERNAME')
+TELEGRAM_TOKEN=os.environ.get('TELEGRAM_TOKEN')
 GROQ_API_KEY=os.environ.get('GROQ_API_KEY')
-HUGGING_FACE_API_KEY=os.environ.get('HUGGING_FACE_API_KEY')
-print("deep",DEEPSEEK_API_KEY)
+ENCODER_SERVER_PORT=int(os.environ.get('ENCODER_SERVER_PORT', 8009))
+ENCODER_SERVER_HOST=os.environ.get('ENCODER_SERVER_HOST', '127.0.0.1')
+ENCODER_SERVER_SCHEME=os.environ.get('ENCODER_SERVER_SCHEME', 'http')
